@@ -32,6 +32,7 @@ async function handleRequest(req) {
     connectionFailed = false;
     if(db.state == "disconnected") {
         await util.promisify(db.connect).bind(db)()
+            .then(() => db.on('error', (err) => {}))
             .catch(() => connectionFailed = true);
     }
 

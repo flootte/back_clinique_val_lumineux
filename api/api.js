@@ -30,14 +30,9 @@ async function handleRequest(req) {
     }
 
     connectionFailed = false;
-    //console.log(db)
-    //console.log("-----");
     if(db.state == "disconnected") {
         await util.promisify(db.connect).bind(db)()
-            .catch((err) => {
-                connectionFailed = true;
-                console.log(err);
-            });
+            .catch(() => connectionFailed = true);
     }
 
     if(!connectionFailed) {

@@ -50,10 +50,10 @@ async function handleRequest(req) {
     if(!connectionFailed) {
         switch(splittedRoute[0].toLowerCase()) {
             case "doctors":
-                res = await doctors.handle(method, splittedRoute.slice(1), data, query);
+                res = await doctors.handle(method, splittedRoute.slice(1), req.headers, data, query);
                 break;
             case "users":
-                res = await users.handle(method, splittedRoute.slice(1), data, query);
+                res = await users.handle(method, splittedRoute.slice(1), req.headers, data, query);
                 break;
         }
     }

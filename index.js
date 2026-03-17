@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const githubRequest = require('./githubRequest');
 const { getRedirection } = require("./redirect");
+const api = require('./api/api');
 
 const env = process.env;
 
@@ -20,7 +21,7 @@ function getAssociatedResponseSite(askedRessource) {
 	};
 
 	var splitted_path = askedRessource.split(".");
-	var extension = splitted_path[splitted_path.length-1];
+	var extension = splitted_path[splitted_path.length-1].toLowerCase();
 
 	var fileToRead = SITE_FOLDER + askedRessource;
 	var encoding = "utf-8";
@@ -84,13 +85,14 @@ const server = http.createServer(async (req, res) => {
 
 	var askedContent;
 	if(askedRessource.toLowerCase().startsWith("/api")) {
-		// TODO
-		askedContent = { statusCode: 302, location: '/404'}; // pour le moment on ne trouve rien
+		askedContent = await api.handleRequest(req);
 	} else if(askedRessource.toLowerCase().startsWith("/github")) {
 		askedContent = await githubRequest.handleRequest(req);
 	} else {
 		askedContent = getAssociatedResponseSite(askedRessource);
 	}
+
+	if(askedContent ==  undefined) askedContent = { statusCode: 302, location: '/500'};
 
 	res.statusCode = askedContent.statusCode;
 

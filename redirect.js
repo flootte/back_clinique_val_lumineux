@@ -48,7 +48,7 @@ function getRedirection(path) {
 
             while(match && j < partNumber) {
                 if(new RegExp(`^${splittedRedirection[j]}`).test(workingPath)) {
-                    workingPath = workingPath.slice(splittedRedirection[j].length);
+                    workingPath = workingPath.replace(new RegExp(`^${splittedRedirection[j]}`), "");
                     if( (j == partNumber-1 && from.endsWith("{x}")) || j != partNumber-1) {
                         if(workingPath.length == 0) {
                             match = false;
@@ -69,7 +69,7 @@ function getRedirection(path) {
                     redirect = redirect.replaceAll(`{${x}}`, args[x]);
                 }
             }
-        } else if(new RegExp(`^${redirection}/*$`).test(path)) redirect = redirection["to"];
+        } else if(new RegExp(`^${from}/*$`).test(path)) redirect = redirection["to"];
         i++;
     }
 

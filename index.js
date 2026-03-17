@@ -4,6 +4,7 @@ const http = require('http');
 const fs = require('fs');
 
 const githubRequest = require('./githubRequest');
+const { getRedirection } = require("./redirect");
 
 const env = process.env;
 
@@ -79,7 +80,7 @@ function getAssociatedResponseSite(askedRessource) {
 }
 
 const server = http.createServer(async (req, res) => {
-	const askedRessource = req.url;
+	const askedRessource = getRedirection(req.url);
 
 	var askedContent;
 	if(askedRessource.toLowerCase().startsWith("/api")) {

@@ -23,6 +23,7 @@ async function handleRequest(req) {
     res = { statusCode: 302, location: '/500'};
 
     data = querystring.decode(await getData(req)); // récupère les potentielles datas
+    queryParameters  = {};
 
     method = req.method; // POST, GET, PUT, DELETE
     splittedRoute = req.url.slice(5).split("/"); // on enlève le "/api/" du début avant de séparer la chaîne par les "/"
@@ -50,10 +51,10 @@ async function handleRequest(req) {
     if(!connectionFailed) {
         switch(splittedRoute[0].toLowerCase()) {
             case "doctors":
-                res = await doctors.handle(method, splittedRoute.slice(1), req.headers, data, query);
+                res = await doctors.handle(method, splittedRoute.slice(1), req.headers, data, queryParameters, query);
                 break;
             case "users":
-                res = await users.handle(method, splittedRoute.slice(1), req.headers, data, query);
+                res = await users.handle(method, splittedRoute.slice(1), req.headers, data, queryParameters, query);
                 break;
         }
     }

@@ -1,6 +1,6 @@
 const { createHash, randomBytes } = require('crypto');
 
-async function handle(method, splittedRoute, headers, data, query) {
+async function handle(method, splittedRoute, headers, data, queryParameters, query) {
     res;
     switch(method) {
         case "GET":

@@ -14,6 +14,7 @@ const PORT = env.SERVER_PORT;
 const SITE_FOLDER = env.SITE_FOLDER;
 
 function getAssociatedResponseSite(askedRessource) {
+	askedRessource = askedRessource.split("?")[0]; // on enlève les query parameters
 	var res = { // par défaut tout fonctionne
 		statusCode: 200,
 		contentType: "text/html",
@@ -82,6 +83,7 @@ function getAssociatedResponseSite(askedRessource) {
 
 const server = http.createServer(async (req, res) => {
 	const askedRessource = getRedirection(req.url);
+	req.url = askedRessource;
 
 	var askedContent;
 	if(askedRessource.toLowerCase().startsWith("/api")) {

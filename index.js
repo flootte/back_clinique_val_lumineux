@@ -4,6 +4,7 @@ const http = require('http');
 const fs = require('fs');
 
 const githubRequest = require('./githubRequest');
+const { getRedirection } = require("./redirect");
 const api = require('./api/api');
 
 const env = process.env;
@@ -13,6 +14,7 @@ const PORT = env.SERVER_PORT;
 const SITE_FOLDER = env.SITE_FOLDER;
 
 function getAssociatedResponseSite(askedRessource) {
+	askedRessource = askedRessource.split("?")[0]; // on enlève les query parameters
 	var res = { // par défaut tout fonctionne
 		statusCode: 200,
 		contentType: "text/html",
@@ -80,7 +82,8 @@ function getAssociatedResponseSite(askedRessource) {
 }
 
 const server = http.createServer(async (req, res) => {
-	const askedRessource = req.url;
+	const askedRessource = getRedirection(req.url);
+	req.url = askedRessource;
 
 	var askedContent;
 	if(askedRessource.toLowerCase().startsWith("/api")) {

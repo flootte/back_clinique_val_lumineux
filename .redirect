@@ -1,0 +1,6 @@
+# Fichier de redirection d'URL
+# Forme: URL depart -> URL arrivé
+# Il est possible d'utiliser pour les URL la forme suivante: /user/{x}
+# Pour réutiliser les arguments, il suffit de les récrire de la même manière du coté de l'arrivé
+# Ex: /user/{x} -> /page/user?id={0}
+/login -> /pages/conn.html

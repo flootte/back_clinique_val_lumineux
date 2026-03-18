@@ -121,7 +121,7 @@ async function getDoctors(query) {
 
         for(i = 0 ; i < result.length ; i++) {
             entry = result[i];
-            index = addedDoctors.findIndex((doctor) => doctor["id"] == entry["doctor_id"]);
+            index = addedDoctors.findIndex((doctorID) => doctorID == entry["doctor_id"]);
             if(index == -1) {
                 addedDoctors.push(entry["id"]);
                 toAdd = { // on créé le docteur

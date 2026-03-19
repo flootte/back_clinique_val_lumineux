@@ -1,5 +1,5 @@
 async function handle(method, splittedRoute, headers, data, queryParameters, query) {
-    res;
+    var res;
     switch(method) {
         case "GET":
             res = await handleGet(splittedRoute, headers, data, query);
@@ -18,7 +18,7 @@ async function handle(method, splittedRoute, headers, data, queryParameters, que
 }
 
 async function handleGet(splittedRoute, headers, data, query) {
-    res = { statusCode: 302, location: '/404' };
+    var res = { statusCode: 302, location: '/404' };
     if(splittedRoute.length == 1) { // "/api/doctors/{doctor_id}"
         res = {
             statusCode: 200,
@@ -36,7 +36,7 @@ async function handleGet(splittedRoute, headers, data, query) {
 }
 
 async function getDoctor(doctorID, query) {
-    res = {success: false};
+    var res = {success: false};
 
     await query(
         `SELECT \
@@ -94,7 +94,7 @@ async function getDoctor(doctorID, query) {
 }
 
 async function getDoctors(query) {
-    res = { success: false };
+    var res = { success: false };
 
     await query(
         `SELECT \

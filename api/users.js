@@ -82,7 +82,7 @@ async function connectMailPassword(data, query) {
 }
 
 async function handleGet(splittedRoute, headers, data, query) {
-    res = { statusCode: 302, location: '/404' };
+    var res = { statusCode: 302, location: '/404' };
     if(splittedRoute.length == 0) {
         res = {
             statusCode: 200,
@@ -203,7 +203,7 @@ async function getAppointments(headers, query) {
 }
 
 async function handlePut(splittedRoute, headers, data, query) {
-    res = { statusCode: 302, location: '/404' };
+    var res = { statusCode: 302, location: '/404' };
     if(splittedRoute.length == 0) {
         res = {
             statusCode: 200,

@@ -46,21 +46,23 @@ async function handleRequest(req) {
         }
     }
 
-    connectionFailed = false;
+    if(splittedRoute.length != 0) {
+        connectionFailed = false;
 
-    await util.promisify(db.getConnection).bind(db)()
-        .then(async conn => {
-            conn.ping(undefined, err => {
-                connectionFailed = true;
-            });
-            conn.release();
-        })
-        .catch(() => connectionFailed = true);
+        await util.promisify(db.getConnection).bind(db)()
+            .then(async conn => {
+                conn.ping(undefined, err => {
+                    connectionFailed = true;
+                });
+                conn.release();
+            })
+            .catch(() => connectionFailed = true);
 
-    if(!connectionFailed) {
-        var firstRoute = splittedRoute[0].toLowerCase();
-        if(requestHandlers[firstRoute]) {
-            res = requestHandlers[firstRoute](method, splittedRoute.slice(1), req.headers, data, queryParameters, query);
+        if(!connectionFailed) {
+            var firstRoute = splittedRoute[0].toLowerCase();
+            if(requestHandlers[firstRoute]) {
+                res = requestHandlers[firstRoute](method, splittedRoute.slice(1), req.headers, data, queryParameters, query);
+            }
         }
     }
     return res;

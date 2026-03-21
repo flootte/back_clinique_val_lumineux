@@ -29,7 +29,7 @@ const requestHandlers = {
 }
 
 async function handleRequest(req) {
-    var res = { statusCode: 302, location: '/500'};
+    var res = { statusCode: 302, location: '/500'}; // redirection vers la page 500
 
     data = querystring.decode(await getData(req)); // récupère les potentielles datas
     queryParameters  = querystring.decode(req.url.split("?")[1]||"");
@@ -49,18 +49,20 @@ async function handleRequest(req) {
     if(splittedRoute.length != 0) {
         connectionFailed = false;
 
+        // on vérifie si la connexion à la BDD est possible
         await util.promisify(db.getConnection).bind(db)()
             .then(async conn => {
-                conn.ping(undefined, err => {
+                conn.ping(undefined, () => {
                     connectionFailed = true;
                 });
                 conn.release();
             })
             .catch(() => connectionFailed = true);
 
-        if(!connectionFailed) {
+        if(!connectionFailed) { // si on a réussi à se connecter
             var firstRoute = splittedRoute[0].toLowerCase();
-            if(requestHandlers[firstRoute]) {
+            if(requestHandlers[firstRoute]) { // si le début de la route existe
+                // on délégue le traitement de la requête à bonne route
                 res = requestHandlers[firstRoute](method, splittedRoute.slice(1), req.headers, data, queryParameters, query);
             }
         }
@@ -68,7 +70,7 @@ async function handleRequest(req) {
     return res;
 }
 
-async function getData(req) {
+async function getData(req) { // récupère les data d'une requête
     data = '';
 
     req.on('data', chunk => { // récupère les données et les stocke dans une variable

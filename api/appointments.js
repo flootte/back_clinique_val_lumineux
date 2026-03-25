@@ -37,41 +37,65 @@ async function createAppointments(headers, data, query) { // création d'un rend
         var token = headers["authorization"].replace("Bearer ", "");
         var result = await query(`
             SELECT D.id as doctor_id, D.name as doctor_name, D.firstname as doctor_firstname, \
-            S.id as sector_id, S.name as sector_name, S.description as sector_description, S.color as sector_color \
+            S.id as sector_id, S.name as sector_name, S.description as sector_description, S.color as sector_color, \
+            SE.id as secretary_id, SE.name as secretary_name, SE.firstname as secretary_firstname \
             FROM user U \
             JOIN user_token UT \
             ON U.id = UT.user \
-            JOIN doctor D \
+            LEFT OUTER JOIN doctor D \
             ON U.doctor_id = D.id \
+            LEFT OUTER JOIN secretary SE \
+            ON U.secretary_id=SE.id
             JOIN sector S \
             ON D.sector_id = S.id \
             WHERE UT.token="${token}"
         `);
         
-        if(result.length == 1) { // s'il est bien docteur
+        if(result.length == 1) { // s'il est bien docteur ou secretaire
             var dataSet = result[0];
-            var r = await query(`
-                INSERT INTO appointment
-                (time_start, time_end, doctor_id)
-                VALUES 
-                ('${data["time_start"]}', '${data["time_end"]}', ${dataSet["doctor_id"]})
-            `);
+            var doctorID;
+            var success = true;
 
-            res = {
-                "id": r["insertId"],
-                "start": data["time_start"],
-                "end": data["time_end"],
-                "reseved": false,
-                "doctor": {
-                    "id": dataSet["doctor_id"],
-                    "name": dataSet["doctor_name"],
-                    "firstname": dataSet["doctor_firstname"]
-                },
-                "sector": {
-                    "id": dataSet["sector_id"],
-                    "name": dataSet["sector_name"],
-                    "description": dataSet["sector_description"],
-                    "color": dataSet["sector_color"]
+            if(dataSet["secretary_id"]) {
+                result = query(`
+                    SELECT D.name as doctor_name, D.firstname as doctor_firstname, \
+                    S.id as sector_id, S.name as sector_name, S.description as sector_description, S.color as sector_color, \
+                    FROM doctor D \
+                    JOIN sector S \
+                    ON D.sector_id=S.id \
+                    WHERE D.id=${data["doctor_id"]||"0"}
+                `);
+
+                if(result.length == 1) {
+                    doctorID = data["doctor_id"];
+                    dataSet = result[0];
+                } else success = false;
+            } else doctorID = dataSet["doctor_id"];
+
+            if(success) {
+                var r = await query(`
+                    INSERT INTO appointment
+                    (time_start, time_end, doctor_id)
+                    VALUES 
+                    ('${data["time_start"]}', '${data["time_end"]}', ${doctorID})
+                `);
+
+                res = {
+                    "id": r["insertId"],
+                    "start": data["time_start"],
+                    "end": data["time_end"],
+                    "reseved": false,
+                    "doctor": {
+                        "id": doctorID,
+                        "name": dataSet["doctor_name"],
+                        "firstname": dataSet["doctor_firstname"]
+                    },
+                    "sector": {
+                        "id": dataSet["sector_id"],
+                        "name": dataSet["sector_name"],
+                        "description": dataSet["sector_description"],
+                        "color": dataSet["sector_color"]
+                    }
                 }
             }
         } else res = "Requête interdite";

@@ -68,9 +68,11 @@ async function connectMailPassword(data, query) {
                 "mail": user["mail"],
                 "name": user["client_name"] || user["admin_name"] || user["secretary_name"] || user["admin_name"],
                 "firstname": user["client_firstname"] || user["admin_firstname"] || user["secretary_firstname"] || user["admin_firstname"],
-                "admin": user["admin_firstname"] != null,
-                "secretary": user["secretary_firstname"] != null,
-                "doctor": user["doctor_firstname"] != null,
+                "role": (
+                    user["admin_firstname"] ? "ADMIN" : (
+                        user["secratary_firstname"] ? "SECRETARY" : (
+                            user["doctor_firstname"] ? "DOCTOR" : "USER"
+                    ))),
                 "token": token
             };
 
@@ -141,9 +143,11 @@ async function connectToken(headers, query) {
                 "mail": user["mail"],
                 "name": user["client_name"] || user["admin_name"] || user["secretary_name"] || user["admin_name"],
                 "firstname": user["client_firstname"] || user["admin_firstname"] || user["secretary_firstname"] || user["admin_firstname"],
-                "admin": user["admin_firstname"] != null,
-                "secretary": user["secretary_firstname"] != null,
-                "doctor": user["doctor_firstname"] != null
+                "role": (
+                    user["admin_firstname"] ? "ADMIN" : (
+                        user["secratary_firstname"] ? "SECRETARY" : (
+                            user["doctor_firstname"] ? "DOCTOR" : "USER"
+                    )))
             };
         }
     }

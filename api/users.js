@@ -68,13 +68,15 @@ async function connectMailPassword(data, query) {
                 "mail": user["mail"],
                 "name": user["client_name"] || user["admin_name"] || user["secretary_name"] || user["admin_name"],
                 "firstname": user["client_firstname"] || user["admin_firstname"] || user["secretary_firstname"] || user["admin_firstname"],
-                "admin": user["admin_firstname"] != null,
-                "secretary": user["secretary_firstname"] != null,
-                "doctor": user["doctor_firstname"] != null,
+                "role": (
+                    user["admin_firstname"] ? "ADMIN" : (
+                        user["secratary_firstname"] ? "SECRETARY" : (
+                            user["doctor_firstname"] ? "DOCTOR" : "USER"
+                    ))),
                 "token": token
             };
 
-            await query(`INSERT INTO user_token VALUES (${user["id"]}, '${token}')`);
+            await query(`INSERT INTO user_token VALUES (${user["id"]}, '${token}', DATE_ADD(NOW(), INTERVAL 1 WEEK))`);
         };
     }
 
@@ -131,6 +133,7 @@ async function connectToken(headers, query) {
             LEFT OUTER JOIN doctor D \
             ON (U.doctor_id IS NOT NULL AND U.doctor_id = D.id) \
             WHERE UT.token="${token}" \
+            AND NOW() <= UT.expiration \
             ORDER BY U.id
         `);
 
@@ -141,10 +144,13 @@ async function connectToken(headers, query) {
                 "mail": user["mail"],
                 "name": user["client_name"] || user["admin_name"] || user["secretary_name"] || user["admin_name"],
                 "firstname": user["client_firstname"] || user["admin_firstname"] || user["secretary_firstname"] || user["admin_firstname"],
-                "admin": user["admin_firstname"] != null,
-                "secretary": user["secretary_firstname"] != null,
-                "doctor": user["doctor_firstname"] != null
+                "role": (
+                    user["admin_firstname"] ? "ADMIN" : (
+                        user["secratary_firstname"] ? "SECRETARY" : (
+                            user["doctor_firstname"] ? "DOCTOR" : "USER"
+                    )))
             };
+            query(`UPDATE user_token SET expiration=DATA_ADD(NOW(), INTERVAL 1 WEEK) WHERE token="${token}"`);
         }
     }
     return res;

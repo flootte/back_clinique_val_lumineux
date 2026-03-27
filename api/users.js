@@ -271,7 +271,7 @@ async function createUser(headers, data, query) {
 
             if(!isAdmin) {
                 var token = randomBytes(64).toString("base64url");
-                await query(`INSERT INTO user_token VALUES (${userID}, '${token}')`);
+                await query(`INSERT INTO user_token VALUES (${userID}, '${token}', DATE_ADD(NOW(), INTERVAL 1 WEEK))`);
                 res["token"] = token;
             }
         }

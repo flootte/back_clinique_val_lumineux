@@ -76,7 +76,7 @@ async function connectMailPassword(data, query) {
                 "token": token
             };
 
-            await query(`INSERT INTO user_token VALUES (${user["id"]}, '${token}')`);
+            await query(`INSERT INTO user_token VALUES (${user["id"]}, '${token}', DATE_ADD(NOW(), INTERVAL 1 WEEK))`);
         };
     }
 
@@ -133,6 +133,7 @@ async function connectToken(headers, query) {
             LEFT OUTER JOIN doctor D \
             ON (U.doctor_id IS NOT NULL AND U.doctor_id = D.id) \
             WHERE UT.token="${token}" \
+            AND NOW() <= UT.expiration \
             ORDER BY U.id
         `);
 
@@ -149,6 +150,7 @@ async function connectToken(headers, query) {
                             user["doctor_firstname"] ? "DOCTOR" : "USER"
                     )))
             };
+            query(`UPDATE user_token SET expiration=DATA_ADD(NOW(), INTERVAL 1 WEEK) WHERE token="${token}"`);
         }
     }
     return res;

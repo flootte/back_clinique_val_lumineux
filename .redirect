@@ -5,7 +5,8 @@
 # Ex: /user/{x} -> /page/user?id={0}
 /login -> /pages/conn.html
 /home -> /pages/index.html
+/secretary -> /pages/index_secretary.html
 / -> /pages/index.html
 /register -> /pages/register.html
 /account -> /pages/index_user.html
-/secretary -> /pages/indexusecretary.html
+

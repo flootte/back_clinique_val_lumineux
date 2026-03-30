@@ -28,6 +28,20 @@ const requestHandlers = {
     "clients": clients.handle
 }
 
+async function checkDBConnection() {
+    let connectionFailed = false;
+
+    // on vérifie si la connexion à la BDD est possible
+    await util.promisify(db.getConnection).bind(db)()
+        .then(async conn => {
+            conn.ping(undefined, () => {
+                connectionFailed = true;
+            });
+            conn.release();
+        }).catch(() => connectionFailed = true);
+    return !connectionFailed;
+}
+
 async function handleRequest(req) {
     var res = { statusCode: 302, location: '/500'}; // redirection vers la page 500
 
@@ -47,19 +61,7 @@ async function handleRequest(req) {
     }
 
     if(splittedRoute.length != 0) {
-        connectionFailed = false;
-
-        // on vérifie si la connexion à la BDD est possible
-        await util.promisify(db.getConnection).bind(db)()
-            .then(async conn => {
-                conn.ping(undefined, () => {
-                    connectionFailed = true;
-                });
-                conn.release();
-            })
-            .catch(() => connectionFailed = true);
-
-        if(!connectionFailed) { // si on a réussi à se connecter
+        if(await checkDBConnection()) { // si on a réussi à se connecter
             var firstRoute = splittedRoute[0].toLowerCase();
             if(requestHandlers[firstRoute]) { // si le début de la route existe
                 // on délégue le traitement de la requête à bonne route
@@ -80,6 +82,15 @@ async function getData(req) { // récupère les data d'une requête
     await util.promisify(req.on).bind(req)('end'); // permet d'attendre que les données aient bien toutes été récupérées
     return data;
 }
+
+async function cleanData() {
+    while(await checkDBConnection()) {
+        await query(`DELETE FROM user_token WHERE expiration < NOW()`);
+        await new Promise(r => setTimeout(r, 172800000)); // 172800000 ms = 2d
+    }
+}
+
+cleanData();
 
 module.exports = {
     handleRequest: handleRequest
